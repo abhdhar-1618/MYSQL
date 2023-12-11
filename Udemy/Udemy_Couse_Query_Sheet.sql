@@ -76,6 +76,92 @@ video Display data with Column Alias" video at 4:55 Minute mark*/
 /* Data sorting is discussed in video "Display data in Sorting order" full video*/
 
 
+-- Find all the employee details starting with "A"[Pattern Matching][Wildcards and RegEx:- "%" & "_"]
+
+SELECT * 
+FROM employees
+WHERE firstName LIKE 'A%';
+
+-- Find all the employee details where employee last name starts with "P"
+
+SELECT *
+FROM employees
+WHERE lastName LIKE 'P%';
+
+-- Find all the customer names which ended with "co."
+
+SELECT *
+FROM customers
+WHERE customerName LIKE '%co.'
+
+-- Find all the customer names started with "C" and ended with "co."
+
+SELECT *
+FROM customers
+WHERE customerName LIKE 'c%co.';
+
+-- Find all the addresses where it contains the number '56'
+SELECT *
+FROM customers
+WHERE addressLine1 LIKE '%56%';
+
+-- Find all the customer names contain two "E's" anywhere in the name
+
+SELECT *
+FROM customers
+WHERE customerName LIKE '%E%E%';
+
+-- customer name starts with A and have E's anywhere in the customer name
+
+SELECT *
+FROM customers
+WHERE customerName LIKE 'A%E%E%';
+
+-- Find customer names where the 2nd character of the customer name is "A"
+SELECT *
+FROM customers
+WHERE customerName LIKE '_A%';
+
+-- customer name starts with "C" and 2nd last character is "o" and last charachter can be anything
+
+SELECT *
+FROM customers
+WHERE customerName LIKE 'C%O_';
+
+-- Fetch all the records where contactFirstName having 2nd character is E and second last character is E
+
+SELECT *
+FROM customers
+WHERE contactFirstName LIKE '_e%e_';
+
+-- Fetch all the records where contact first name has 5 characters
+
+SELECT *
+FROM customers
+WHERE contactFirstName LIKE '_____';
+
+
+-- Fetch all the records where contact first name has at least 8 characters
+
+SELECT *
+FROM customers
+WHERE contactFirstName LIKE '%________%';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
