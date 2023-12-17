@@ -147,6 +147,125 @@ SELECT *
 FROM customers
 WHERE contactFirstName LIKE '%________%';
 
+-- Fetch all records where the credit limit of the customer is more than the average credit limit [SUBQUERY]
+
+SELECT * FROM customers 
+WHERE creditLimit > (SELECT AVG(creditLimit) FROM customers);
+
+-- Find all the customers who have paid more than the average customer payments
+
+DESCRIBE payments;
+
+SELECT AVG (amount) FROM payments;
+
+SELECT * FROM payments WHERE amount > (SELECT AVG (amount) FROM payments);
+
+-- Fetching NULL values in an SQL Table
+
+SELECT *
+FROM customers
+WHERE addressLine2 IS NULL;
+
+-- showing null count
+
+SELECT *,
+(SELECT COUNT(*) FROM customers WHERE addressLine2 IS NULL) AS null_count
+FROM customers
+WHERE addressLine2 IS NULL;
+
+/* For arithmatic operations, check the video titled "Arithmetic operations on Column Data" */
+
+-- GROUP BY QUERIES
+-- NEW QUERY
+
+SELECT jobTitle, count(*) AS "Number of Employees" 
+FROM employees 
+GROUP BY jobTitle;
+
+-- NEW QUERY
+
+SELECT officeCode, count(*) AS "Total Employees" 
+FROM employees 
+GROUP BY officeCode;
+
+-- NEW QUERY
+
+SELECT country , count(*) AS "Country_Count"  
+FROM customers 
+GROUP BY country;
+
+-- NEW QUERY
+
+SELECT country , ROUND(avg(creditLimit), 2) AS "Credit Limit" 
+FROM customers 
+GROUP BY country 
+HAVING avg(creditLimit)> 80000;
+
+-- NEW QUERY
+
+SELECT * 
+FROM customers 
+WHERE creditLimit > 50000;
+
+-- NEW QUERY
+
+SELECT country , ROUND(avg(creditLimit), 2) AS "Credit Limit" 
+FROM customers 
+WHERE creditLimit > 50000 
+GROUP BY country 
+HAVING avg(creditLimit)> 80000;
+
+-- NEW QUERY
+
+SELECT
+SUM(CASE WHEN addressLine2 IS NULL THEN 1 ELSE 0 END) AS null_count,
+SUM(CASE WHEN addressLine2 IS NOT NULL THEN 1 ELSE 0 END) AS not_null_count
+FROM customers;
+
+-- NEW QUERY
+
+SELECT
+addressLine2,
+COUNT(*) AS count
+FROM customers
+GROUP BY addressLine2;
+
+-- NEW QUERY
+
+SELECT
+addressLine2,
+COUNT(*) AS count
+FROM
+customers
+WHERE
+addressLine2 IS NULL
+GROUP BY
+addressLine2;
+
+
+-- INNER JOIN
+
+
+SELECT
+employeeNumber,
+lastname,
+firstname,
+email,
+-- employees.officeCode,
+city,
+state
+FROM 
+employees
+
+INNER JOIN offices ON employees.officeCode = offices.officeCode;
+
+/* START FROM LEFT OUTER JOIN VIDEO
+https://www.udemy.com/course/sql-mysql-database/learn/lecture/17070166#overview */
+
+
+
+
+
 
 
 
