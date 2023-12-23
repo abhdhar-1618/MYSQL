@@ -259,8 +259,89 @@ employees
 
 INNER JOIN offices ON employees.officeCode = offices.officeCode;
 
-/* START FROM LEFT OUTER JOIN VIDEO
-https://www.udemy.com/course/sql-mysql-database/learn/lecture/17070166#overview */
+
+-- LEFT JOIN
+-- MIDIFICATIONS
+
+ALTER TABLE employees
+DROP FOREIGN KEY `employees_ibfk_2`;
+
+SELECT * FROM employees;
+
+INSERT INTO `classicmodels`.`employees`
+(`employeeNumber`, `lastName`, `firstName`, `extension`, `email`, `officeCode`, `reportsTo`, `jobTitle`)
+VALUES (1703, 'Test', 'Test', 'x1100', 'abcd@yahoo.com', 9, 1102, 'Sales Rep');
+
+
+INSERT INTO `classicmodels`.`offices`(`officeCode`,`city`,`phone`,`addressLine1`,`addressLine2`,`state`,
+`country`,`postalCode`,`territory`) VALUES (8, 'Noida', '+91-8743913121', 'Add1', 'Add2', 'ND', 'IND', 201301, 'NA');
+
+-- LEFT JOIN QUERY MAIN
+/*SELECT * FROM employees;
+SELECT * FROM offices;*/
+
+SELECT
+employeeNumber,
+firstName,
+lastName,
+email,
+city
+FROM
+employees
+LEFT JOIN 
+offices
+ON employees.officeCode = offices.officeCode;
+
+-- RIGHT JOIN
+
+SELECT 
+employeeNumber, 
+firstName, 
+lastname, 
+email, 
+city, 
+state, 
+country
+FROM 
+employees 
+RIGHT JOIN 
+offices
+
+ON employees.officeCode = offices.officeCode;
+
+-- FULL OUTER JOIN
+
+SELECT 
+e.employeeNumber, e.firstname, e.lastname, e.email, o.city, o.state, o.country
+FROM 
+employees e
+LEFT JOIN 
+offices o ON e.officeCode = o.officeCode
+
+UNION
+
+SELECT 
+e.employeeNumber, e.firstname, e.lastname, e.email, o.city, o.state, o.country
+FROM 
+employees e
+RIGHT JOIN 
+offices o ON e.officeCode = o.officeCode;
+
+-- SELF JOIN
+
+SELECT
+A.firstname AS "Emp Name",
+B.firstname AS "Manager Name"
+FROM
+employees A
+INNER JOIN
+employees B ON A.reportsTo = B.employeeNumber;
+
+-- START FROM SECTION 7: WORKING WITH TABLES
+
+
+
+
 
 
 

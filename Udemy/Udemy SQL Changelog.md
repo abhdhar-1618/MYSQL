@@ -7,3 +7,5 @@
 11-12-2023 21:55:00 Udemy SQL File updated
 
 17-12-2023 21:23:54 Udemy SQL File updated tils video class no 31
+
+23-12-2023 22:03:56 Done till SECTION 7: WORKING WITH TABLES
