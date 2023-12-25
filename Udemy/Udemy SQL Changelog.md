@@ -9,3 +9,5 @@
 17-12-2023 21:23:54 Udemy SQL File updated tils video class no 31
 
 23-12-2023 22:03:56 Done till SECTION 7: WORKING WITH TABLES
+
+25-12-2023 21:45:50 Course completion certificate added
