@@ -1,0 +1,9 @@
+OrderDetails_Table,Orders_Table,Products_Table,Shippers_Table,Suppliers_Table,Customers_Table,Categories_Table,Employees_Table
+OrderDetailID,OrderID,ProductID,ShipperID,SupplierID,CustomerID,CategoryID,EmployeeID
+OrderID,CustomerID,ProductName,ShipperName,SupplierName,CustomerName,CategoryName,LastName
+ProductID,EmployeeID,SupplierID,Phone,ContactName,ContactName,Description,FirstName
+Quantity,OrderDate,CategoryID,,Address,Address,,BirthDate
+,ShipperID,Unit,,City,City,,Photo
+,,Price,,PostalCode,PostalCode,,Notes
+,,,,Country,Country,,
+,,,,Phone,,,
