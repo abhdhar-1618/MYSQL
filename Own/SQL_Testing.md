@@ -7,3 +7,6 @@ SQL TESTING RANDOM TEXT 2:
 To make your document look professionally produced, Word provides header, footer, cover page, and text box designs that complement each other. For example, you can add a matching cover page, header, and sidebar. Click Insert and then choose the elements you want from the different galleries.
 
 23-02-2024 23:34:44 W3 Schools SQL File aadded
+
+10-03-2024 21:46:29 Work re-started on W3 Shools materials
+
