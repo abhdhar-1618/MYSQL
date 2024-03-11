@@ -10,3 +10,5 @@ To make your document look professionally produced, Word provides header, footer
 
 10-03-2024 21:46:29 Work re-started on W3 Shools materials
 
+11-03-2024 23:38:03 Completed till SQL COUNT() Function 
+
