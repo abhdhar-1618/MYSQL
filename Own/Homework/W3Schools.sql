@@ -344,6 +344,357 @@ SELECT COUNT(*) 'AS Number of records', CategoryID
 FROM Products
 GROUP BY CategoryID;
 
+-- Return the sum of all Quantity fields in the OrderDetails table:
+
+SELECT SUM(Quantity)
+FROM OrderDetails;
+
+-- Return the sum of the `Quantity` field for the product with `ProductID` 11:
+
+SELECT SUM(Quantity)
+FROM OrderDetails
+WHERE ProductId = 11;
+
+-- give the Name "total" to the new summarized column :
+
+SELECT SUM(Quantity) AS total
+FROM OrderDetails;
+
+/* Here we use the SUM() function and the GROUP BY clause, 
+ to return the Quantity for each OrderID in the OrderDetails table: */
+
+SELECT OrderID, SUM(Quantity) AS 'Total Quantity'
+FROM OrderDetails
+GROUP BY OrderID;
+
+-- Use an expression inside the `SUM()` function:
+
+SELECT SUM(Quantity * 10)
+FROM OrderDetails;
+
+-- Join `OrderDetails` with `Products`, and use `SUM()` to find the total amount:
+SELECT SUM(Price * Quantity)
+FROM OrderDetails
+LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+-- Find the average price of all products:
+
+SELECT AVG(Price)
+FROM Products;
+
+-- Return the average price of products in category 1:
+
+SELECT AVG(Price)
+FROM Products
+WHERE CategoryID = 1;
+
+-- Name the column "average price":
+
+SELECT AVG(Price) AS 'average price'
+FROM Products;
+
+-- Return all products with a higher price than the average price:
+
+SELECT * FROM Products
+WHERE price > (SELECT AVG(price) FROM Products);
+
+-- Here we use the AVG() function and the GROUP BY clause, to return the average price for each category in the Products table:
+
+SELECT AVG(Price) AS AveragePrice, CategoryID
+FROM Products
+GROUP BY CategoryID;
+
+
+-- Select all customers that starts with the letter "a":
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'a%';
+
+
+/* Return all customers from a city that starts with 'L' 
+followed by one wildcard character, then 'nd' and then two wildcard characters:
+*/
+
+SELECT * FROM Customers
+WHERE city LIKE 'L_nd__';
+
+-- Return all customers from a city that contains the letter 'L':
+
+SELECT * FROM Customers
+WHERE city LIKE '%L%';
+
+-- Return all customers who's name starts with 'La':
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'La%';
+
+-- Return all customers that starts with 'a' or starts with 'b':
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'a%' OR CustomerName LIKE 'b%';
+
+-- Return all customers that ends with 'a':
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE '%a';
+
+-- Return all customers that starts with "b" and ends with "s":
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'b%s';
+
+
+-- Return all customers that contains the phrase 'or'
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE '%or%';
+
+-- Return all customers that starts with "a" and are at least 3 characters in length:
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'a__%';
+
+-- Return all customers that have "r" in the second position:
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE '_r%';
+
+-- Return all customers from Spain:
+
+SELECT * FROM Customers
+WHERE Country LIKE 'Spain';
+
+-- Return all customers that starts with the letter 'a':
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'a%';
+
+-- Return all customers that ends with the pattern 'es':
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE '%es';
+
+
+-- Return all customers that contains the pattern 'mer':
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE '%mer%';
+
+
+-- Return all customers with a `City` starting with any character, followed by "ondon":
+
+SELECT * FROM Customers
+WHERE City LIKE '_ondon';
+
+-- Return all customers with a `City` starting with "L", followed by any 3 characters, ending with "on":
+
+SELECT * FROM Customers
+WHERE City LIKE 'L___on';
+
+-- Return all customers that starts with "a" and are at least 3 characters in length:
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE 'a__%';
+
+-- Return all customers that have "r" in the second position:
+
+SELECT * FROM Customers
+WHERE CustomerName LIKE '_r%';
+
+-- Return all customers from Spain:
+
+SELECT * FROM Customers
+WHERE Country LIKE 'Spain';
+
+-- Return all customers from 'Germany', 'France', or 'UK'
+
+SELECT * FROM Customers
+WHERE Country IN ('Germany', 'France', 'UK');
+
+-- Return all customers that are NOT from 'Germany', 'France', or 'UK':
+
+SELECT * FROM Customers
+WHERE Country NOT IN ('Germany', 'France', 'UK');
+
+-- Return all customers that have an order in the Orders table:
+
+SELECT * FROM Customers
+WHERE CustomerID IN (SELECT CustomerID FROM Orders);
+
+-- Return all customers that have NOT placed any orders in the Orders table:
+
+SELECT * FROM Customers
+WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

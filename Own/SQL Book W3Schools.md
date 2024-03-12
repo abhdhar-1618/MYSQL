@@ -692,4 +692,607 @@ FROM Products;
 
 Here we use the `COUNT()` function and the `GROUP BY` clause, to return the number of records for each category in the Products table:
 
+### Example
+
+```
+SELECT COUNT(*) AS [Number of records], CategoryID  
+FROM Products  
+GROUP BY CategoryID;
+```
+
+# SQL SUM() Function
+
+
+## The SQL SUM() Function
+
+
+The `SUM()` function returns the total sum of a numeric column.
+
+### Example
+
+Return the sum of all `Quantity` fields in the `OrderDetails` table:
+
+```
+SELECT SUM(Quantity)  
+FROM OrderDetails;
+```
+
+## Syntax
+
+```
+SELECT SUM(_column_name_)  
+FROM _table_name_  
+WHERE _condition_;
+```
+
+## Add a WHERE Clause
+
+You can add a `WHERE` clause to specify conditions:
+
+### Example
+
+Return the sum of the `Quantity` field for the product with `ProductID` 11:
+
+```
+SELECT SUM(Quantity)  
+FROM OrderDetails  
+WHERE ProductId = 11;
+```
+
+## Use an Alias
+
+Give the summarized column a name by using the `AS` keyword.
+
+### Example
+
+Name the column "total":
+
+```
+SELECT SUM(Quantity) AS total  
+FROM OrderDetails;
+```
+
+## Use SUM() with GROUP BY
+
+Here we use the `SUM()` function and the `GROUP BY` clause, to return the `Quantity` for each `OrderID` in the OrderDetails table:
+
+### Example
+
+```
+SELECT OrderID, SUM(Quantity) AS 'Total Quantity'
+FROM OrderDetails  
+GROUP BY OrderID;
+```
+
+
+## SUM() With an Expression
+
+The parameter inside the `SUM()` function can also be an expression.
+
+If we assume that each product in the `OrderDetails` column costs 10 dollars, we can find the total earnings in dollars by multiply each quantity with 10:
+
+### Example
+
+Use an expression inside the `SUM()` function:
+
+```
+SELECT SUM(Quantity * 10)  
+FROM OrderDetails;
+```
+
+
+We can also join the `OrderDetails` table to the `Products` table to find the actual amount, instead of assuming it is 10 dollars:
+
+### Example
+
+Join `OrderDetails` with `Products`, and use `SUM()` to find the total amount:
+
+```
+SELECT SUM(Price * Quantity)  
+FROM OrderDetails  
+LEFT JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+```
+
+
+# SQL AVG() Function
+
+## The SQL AVG() Function
+
+The `AVG()` function returns the average value of a numeric column.
+
+### Example
+
+Find the average price of all products:
+
+```
+SELECT AVG(Price)  
+FROM Products;
+```
+
+## Syntax
+
+```
+SELECT AVG(_column_name_)  
+FROM _table_name_  
+WHERE _condition_;
+```
+
+
+## Add a WHERE Clause
+
+You can add a `WHERE` clause to specify conditions:
+
+### Example
+
+Return the average price of products in category 1:
+
+```
+SELECT AVG(Price)  
+FROM Products  
+WHERE CategoryID = 1;
+```
+
+## Use an Alias
+
+Give the AVG column a name by using the `AS` keyword.
+
+### Example
+
+Name the column "average price":
+
+```
+SELECT AVG(Price) AS 'average price'  
+FROM Products;
+```
+
+## Higher Than Average
+
+To list all records with a higher price than average, we can use the `AVG()` function in a sub query:
+
+### Example
+
+Return all products with a higher price than the average price:
+
+```
+SELECT * FROM Products  
+WHERE price > (SELECT AVG(price) FROM Products);
+```
+
+## Use AVG() with GROUP BY
+
+Here we use the `AVG()` function and the `GROUP BY` clause, to return the average price for each category in the Products table:
+
+### Example
+
+```
+SELECT AVG(Price) AS AveragePrice, CategoryID  
+FROM Products  
+GROUP BY CategoryID;
+```
+
+
+# SQL LIKE Operator
+
+## The SQL LIKE Operator
+
+The `LIKE` operator is used in a `WHERE` clause to search for a specified pattern in a column.
+
+There are two wildcards often used in conjunction with the `LIKE` operator:
+
+-  The percent sign `%` represents zero, one, or multiple characters
+-  The underscore sign `_` represents one, single character
+
+### Example
+
+Select all customers that starts with the letter "a":
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'a%';
+```
+
+
+## Syntax
+
+```
+SELECT _column1, column2, ..._  
+FROM _table_name_  
+WHERE _columnN_ LIKE _pattern_;
+```
+
+
+## The _ Wildcard
+
+The `_` wildcard represents a single character.
+
+It can be any character or number, but each `_` represents one, and only one, character.
+
+### Example
+
+Return all customers from a city that starts with 'L' followed by one wildcard character, then 'nd' and then two wildcard characters:
+
+
+```
+SELECT * FROM Customers  
+WHERE city LIKE 'L_nd__';
+```
+
+## The % Wildcard
+
+The `%` wildcard represents any number of characters, even zero characters.
+
+### Example
+
+Return all customers from a city that _contains_ the letter 'L':
+
+```
+SELECT * FROM Customers  
+WHERE city LIKE '%L%';
+```
+
+## Starts With
+
+To return records that starts with a specific letter or phrase, add the `%` at the end of the letter or phrase.
+
+### Example
+
+Return all customers that starts with 'La':
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'La%';
+```
+
+**Tip:** You can also combine any number of conditions using `AND` or `OR` operators.
+
+### Example
+
+Return all customers that starts with 'a' or starts with 'b':
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'a%' OR CustomerName LIKE 'b%';
+```
+
+## Ends With
+
+To return records that ends with a specific letter or phrase, add the `%` at the beginning of the letter or phrase.
+
+
+### Example
+
+Return all customers that ends with 'a':
+
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '%a';
+```
+
+**Tip:** You can also combine "starts with" and "ends with":
+
+
+### Example
+
+Return all customers that starts with "b" and ends with "s":
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'b%s';
+```
+
+## Contains
+
+To return records that contains a specific letter or phrase, add the `%` both before and after the letter or phrase.
+
+### Example
+
+Return all customers that contains the phrase 'or'
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '%or%';
+```
+
+## Combine Wildcards
+
+Any wildcard, like `%` and `_` , can be used in combination with other wildcards.
+
+### Example
+
+Return all customers that starts with "a" and are at least 3 characters in length:
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'a__%';
+```
+
+### Example
+
+Return all customers that have "r" in the second position:
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '_r%';
+```
+
+## Without Wildcard
+
+If no wildcard is specified, the phrase has to have an exact match to return a result.
+
+### Example
+
+Return all customers from Spain:
+
+```
+SELECT * FROM Customers  
+WHERE Country LIKE 'Spain';
+```
+
+# SQL Wildcards
+
+## SQL Wildcard Characters
+
+A wildcard character is used to substitute one or more characters in a string.
+
+Wildcard characters are used with the `[LIKE](https://www.w3schools.com/sql/sql_like.asp)` operator. The `LIKE` operator is used in a `WHERE` clause to search for a specified pattern in a column.
+
+### Example
+
+Return all customers that starts with the letter 'a':
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'a%';
+```
+
+
+## Wildcard Characters
+
+|Symbol|Description|
+|---|---|
+|%|Represents zero or more characters|
+|_|Represents a single character|
+|[]|Represents any single character within the brackets *|
+|^|Represents any character not in the brackets *|
+|-|Represents any single character within the specified range *|
+|{}|Represents any escaped character **|
+
+[*]  Not supported in PostgreSQL and MySQL databases.
+
+[**]  Supported only in Oracle databases.
+
+
+## Using the % Wildcard
+
+The `%` wildcard represents any number of characters, even zero characters.
+
+### Example
+
+Return all customers that ends with the pattern 'es':
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '%es';
+```
+
+### Example
+
+Return all customers that _contains_ the pattern 'mer':
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '%mer%';
+```
+
+## Using the _ Wildcard
+
+The `_` wildcard represents a single character.
+
+It can be any character or number, but each `_` represents one, and only one, character.
+
+### Example
+
+Return all customers with a `City` starting with any character, followed by "ondon":
+
+```
+SELECT * FROM Customers  
+WHERE City LIKE '_ondon';
+```
+
+
+### Example
+
+Return all customers with a `City` starting with "L", followed by any 3 characters, ending with "on":
+
+```
+SELECT * FROM Customers  
+WHERE City LIKE 'L___on';
+```
+
+## Using the [] Wildcard
+
+The `[]` wildcard returns a result if _any_ of the characters inside gets a match.
+
+### Example
+
+Return all customers starting with either "b", "s", or "p":
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '[bsp]%';
+```
+
+## Combine Wildcards
+
+Any wildcard, like `%` and `_` , can be used in combination with other wildcards.
+
+### Example
+
+Return all customers that starts with "a" and are at least 3 characters in length:
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE 'a__%';
+```
+
+### Example
+
+Return all customers that have "r" in the second position:
+
+```
+SELECT * FROM Customers  
+WHERE CustomerName LIKE '_r%';
+```
+
+## Without Wildcard
+
+If no wildcard is specified, the phrase has to have an exact match to return a result.
+
+### Example
+
+Return all customers from Spain:
+
+```
+SELECT * FROM Customers
+WHERE Country LIKE 'Spain';
+```
+
+# SQL IN Operator
+
+## The SQL IN Operator
+
+The `IN` operator allows you to specify multiple values in a `WHERE` clause.
+
+The `IN` operator is a shorthand for multiple `OR` conditions.
+
+### Example
+
+Return all customers from 'Germany', 'France', or 'UK'
+
+```
+SELECT * FROM Customers  
+WHERE Country IN ('Germany', 'France', 'UK');
+```
+
+## Syntax
+
+```
+SELECT _column_name(s)_  
+FROM _table_name_  
+WHERE _column_name_ IN (_value1_, _value2_, ...);
+```
+
+
+## NOT IN
+
+By using the `NOT` keyword in front of the `IN` operator, you return all records that are NOT any of the values in the list.
+
+### Example
+
+Return all customers that are NOT from 'Germany', 'France', or 'UK':
+
+```
+SELECT * FROM Customers  
+WHERE Country NOT IN ('Germany', 'France', 'UK');
+```
+
+## IN (SELECT)
+
+You can also use `IN` with a subquery in the `WHERE` clause.
+
+With a subquery you can return all records from the main query that are present in the result of the subquery.
+
+### Example
+
+Return all customers that have an order in the [**Orders**](https://www.w3schools.com/sql/trysql.asp?filename=trysql_orders) table:
+
+```
+SELECT * FROM Customers  
+WHERE CustomerID IN (SELECT CustomerID FROM Orders);
+```
+
+
+## NOT IN (SELECT)
+
+The result in the example above returned 74 records, that means that there are 17 customers that haven't placed any orders.
+
+Let us check if that is correct, by using the `NOT IN` operator.
+
+### Example
+
+Return all customers that have NOT placed any orders in the [**Orders**](https://www.w3schools.com/sql/trysql.asp?filename=trysql_orders) table:
+
+```
+SELECT * FROM Customers  
+WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders);
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

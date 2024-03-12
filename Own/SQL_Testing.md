@@ -12,3 +12,5 @@ To make your document look professionally produced, Word provides header, footer
 
 11-03-2024 23:38:03 Completed till SQL COUNT() Function 
 
+12-03-2024 21:48:04 Completed till SQL IN Function
+
