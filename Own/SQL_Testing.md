@@ -14,3 +14,5 @@ To make your document look professionally produced, Word provides header, footer
 
 12-03-2024 21:48:04 Completed till SQL IN Function
 
+13-03-2024 23:06:14 W3schools SQL Course complete
+

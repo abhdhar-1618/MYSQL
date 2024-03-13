@@ -526,6 +526,347 @@ WHERE CustomerID IN (SELECT CustomerID FROM Orders);
 SELECT * FROM Customers
 WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders);
 
+-- Selects all products with a price between 10 and 20:
+
+SELECT * FROM Products
+WHERE Price BETWEEN 10 AND 20;
+
+-- To display the products outside the range of the previous example, use NOT BETWEEN:
+
+SELECT * FROM Products
+WHERE Price NOT BETWEEN 10 AND 20;
+
+-- Find products where they are priced between 10 and 20 and their category is either 1,2 or 3
+
+SELECT * FROM Products
+WHERE Price BETWEEN 10 AND 20
+AND CategoryID IN (1,2,3);
+
+-- select all products with a ProductName alphabetically between Carnarvon Tigers and Mozzarella di Giovanni:
+
+SELECT * FROM Products
+WHERE ProductName BETWEEN 'Carnarvon Tigers' AND 'Mozzarella di Giovanni'
+ORDER BY ProductName;
+
+-- select all products with a ProductName between Carnarvon Tigers and Chef Anton's Cajun Seasoning:
+
+SELECT * FROM Products
+WHERE ProductName BETWEEN "Carnarvon Tigers" AND "Chef Anton's Cajun Seasoning"
+ORDER BY ProductName;
+
+-- select all products with a ProductName not between Carnarvon Tigers and Mozzarella di Giovanni:
+
+SELECT * FROM Products
+WHERE ProductName NOT BETWEEN 'Carnarvon Tigers' AND 'Mozzarella di Giovanni'
+ORDER BY ProductName;
+
+-- show all orders with an OrderDate between '01-July-1996' and '31-July-1996':
+
+SELECT * FROM Orders
+WHERE OrderDate BETWEEN '1996-07-01' AND '1996-07-31';
+
+-- Usage of Aliases
+
+SELECT CustomerID Cust_ID
+FROM Customers;
+
+-- The following SQL statement creates an alias named "Address" that combine four columns (Address, PostalCode, City and Country):
+
+SELECT CustomerName, CONCAT(Address,', ',PostalCode,', ',City,', ',Country) AS Address
+FROM Customers;
+
+/*
+The following SQL statement selects all the orders from the customer 
+with CustomerID=4 (Around the Horn). We use the "Customers" and "Orders" tables, 
+and give them the table aliases of "c" and "o" respectively 
+(Here we use aliases to make the SQL shorter):
+*/
+
+SELECT o.OrderID, o.OrderDate, c.CustomerName
+FROM Customers AS c, Orders AS o
+WHERE c.CustomerName='Around the Horn' AND c.CustomerID=o.CustomerID;
+
+
+
+-- INNER JOIN
+
+SELECT Orders.OrderID, Customers.CustomerName, Orders.OrderDate
+FROM Orders
+INNER JOIN Customers ON Orders.CustomerID=Customers.CustomerID;
+
+-- Join Products and Categories with the INNER JOIN keyword:
+
+SELECT ProductID, ProductName, CategoryName
+FROM Products
+INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+-- Specify the table names while joining:
+
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName
+FROM Products
+INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+-- JOIN is the same as INNER JOIN:
+
+SELECT Products.ProductID, Products.ProductName, Categories.CategoryName
+FROM Products
+JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+
+-- Inner joining with more than two tables
+
+SELECT Orders.OrderID, Customers.CustomerName, Shippers.ShipperName
+FROM ((Orders
+INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID)
+INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID);
+
+
+-- LEFT JOIN EXAMPLE
+
+SELECT Customers.CustomerName, Orders.OrderID
+FROM Customers
+LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+ORDER BY Customers.CustomerName;
+
+
+-- RIGHT JOIN EXAMPLE
+
+SELECT Orders.OrderID, Employees.LastName, Employees.FirstName
+FROM Orders
+RIGHT JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
+ORDER BY Orders.OrderID;
+
+-- The following SQL statement selects all customers, and all orders:
+
+
+/* CAN'T USE FULL JOIN IN MYSQL
+SELECT Customers.CustomerName, Orders.OrderID
+FROM Customers
+FULL JOIN Orders ON Customers.CustomerID=Orders.CustomerID
+ORDER BY Customers.CustomerName;
+*/
+
+-- The following SQL statement matches customers that are from the same city:
+
+SELECT A.CustomerName AS CustomerName1, B.CustomerName AS CustomerName2, A.City
+FROM Customers A, Customers B
+WHERE A.CustomerID <> B.CustomerID
+AND A.City = B.City
+ORDER BY A.City;
+
+-- The following SQL statement returns the cities (only distinct values) from both the "Customers" and the "Suppliers" table:
+
+SELECT City FROM Customers
+UNION
+SELECT City FROM Suppliers
+ORDER BY City;
+
+/* The following SQL statement returns the cities (duplicate values also) 
+from both the "Customers" and the "Suppliers" table: */
+
+SELECT City FROM Customers
+UNION ALL
+SELECT City FROM Suppliers
+ORDER BY City;
+
+/* The following SQL statement returns the German cities (only distinct values) 
+from both the "Customers" and the "Suppliers" table: */
+
+SELECT City, Country FROM Customers
+WHERE Country='Germany'
+UNION
+SELECT City, Country FROM Suppliers
+WHERE Country='Germany'
+ORDER BY City;
+
+
+/*The following SQL statement returns the German cities (duplicate values also) 
+from both the "Customers" and the "Suppliers" table:*/
+
+SELECT City, Country FROM Customers
+WHERE Country='Germany'
+UNION ALL
+SELECT City, Country FROM Suppliers
+WHERE Country='Germany'
+ORDER BY City;
+
+-- The following SQL statement lists all customers and suppliers:
+
+SELECT 'Customer' AS Type, ContactName, City, Country
+FROM Customers
+UNION
+SELECT 'Supplier', ContactName, City, Country
+FROM Suppliers;
+
+
+-- The following SQL statement lists the number of customers in each country:
+
+SELECT COUNT(CustomerID), Country
+FROM Customers
+GROUP BY Country;
+
+-- The following SQL statement lists the number of customers in each country, sorted high to low:
+
+SELECT COUNT(CustomerID), Country
+FROM Customers
+GROUP BY Country
+ORDER BY COUNT(CustomerID) DESC;
+
+-- The following SQL statement lists the number of orders sent by each shipper:
+
+SELECT Shippers.ShipperName, COUNT(Orders.OrderID) AS NumberOfOrders FROM Orders
+LEFT JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID
+GROUP BY ShipperName;
+
+/*The following SQL statement lists the number of customers
+in each country. Only include countries with more than 5 customers:*/
+
+SELECT COUNT(CustomerID), Country
+FROM Customers
+GROUP BY Country
+HAVING COUNT(CustomerID) > 5;
+
+/* The following SQL statement lists the number of customers
+ in each country, sorted high to low 
+ (Only include countries with more than 5 customers):*/
+
+SELECT COUNT(CustomerID), Country
+FROM Customers
+GROUP BY Country
+HAVING COUNT(CustomerID) > 5
+ORDER BY COUNT(CustomerID) DESC;
+
+
+-- The following SQL statement lists the employees that have registered more than 10 orders:
+
+SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders
+FROM (Orders
+INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID)
+GROUP BY LastName
+HAVING COUNT(Orders.OrderID) > 10;
+
+-- The following SQL statement lists if the employees "Davolio" or "Fuller" have registered more than 25 orders:
+
+SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders
+FROM Orders
+INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
+WHERE LastName = 'Davolio' OR LastName = 'Fuller'
+GROUP BY LastName
+HAVING COUNT(Orders.OrderID) > 25;
+
+-- The following SQL statement returns TRUE and lists the suppliers with a product price less than 20:
+
+SELECT SupplierName
+FROM Suppliers
+WHERE EXISTS (SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price < 20);
+
+
+-- The following SQL statement returns TRUE and lists the suppliers with a product price equal to 22:
+
+SELECT SupplierName
+FROM Suppliers
+WHERE EXISTS (SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price = 22);
+
+
+/*The following SQL statement lists the ProductName 
+if it finds ANY records in the OrderDetails table has 
+Quantity equal to 10 (this will return TRUE because 
+the Quantity column has some values of 10):*/
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = ANY
+  (SELECT ProductID
+  FROM OrderDetails
+  WHERE Quantity = 10);
+  
+  /*The following SQL statement lists the ProductName 
+  if it finds ANY records in the OrderDetails table has 
+  Quantity larger than 99 (this will return TRUE because 
+  the Quantity column has some values larger than 99):*/
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = ANY
+  (SELECT ProductID
+  FROM OrderDetails
+  WHERE Quantity > 99);
+  
+  
+/*The following SQL statement lists the ProductName if it finds ANY records in the OrderDetails table has Quantity larger than 1000 (this will return FALSE because the Quantity column has no values larger than 1000):*/
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = ANY
+  (SELECT ProductID
+  FROM OrderDetails
+  WHERE Quantity > 1000);
+
+/*The following SQL statement lists the ProductName if ALL the records in the OrderDetails table has Quantity equal to 10. This will of course return FALSE because the Quantity column has many different values (not only the value of 10):*/
+
+SELECT ProductName
+FROM Products
+WHERE ProductID = ALL
+  (SELECT ProductID
+  FROM OrderDetails
+  WHERE Quantity = 10);
+  
+  
+ /* The following SQL goes through conditions and returns a value when the first condition is met:*/
+ 
+ SELECT OrderID, Quantity,
+CASE
+    WHEN Quantity > 30 THEN 'The quantity is greater than 30'
+    WHEN Quantity = 30 THEN 'The quantity is 30'
+    ELSE 'The quantity is under 30'
+END AS QuantityText
+FROM OrderDetails;
+
+
+
+-- The following SQL will order the customers by City. However, if City is NULL, then order by Country:
+
+SELECT CustomerName, City, Country
+FROM Customers
+ORDER BY
+(CASE
+    WHEN City IS NULL THEN Country
+    ELSE City
+END);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
