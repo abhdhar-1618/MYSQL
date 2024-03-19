@@ -1,3 +1,10 @@
+/*
+Source .csv files:-
+
+D:\Main\My Practice and experiments\My Practice LAB\SQL\Medium Superstore data\superstore
+
+
+*/
 show tables;
 
 SELECT * FROM orders;
@@ -157,6 +164,66 @@ SELECT Category, ROUND(AVG(Discount), 2) AS Average_Discount
 FROM orders
 GROUP BY Category;
 
+-- How many returned orders are there for each product category?
+
+SELECT orders.Category, COUNT(returns.`Order ID`) AS `Returned_orders_Count`
+FROM orders
+LEFT JOIN returns ON orders.`Order ID` = returns.`Order ID`
+GROUP BY orders.Category
+ORDER BY `Returned_orders_Count` DESC;
+
+
+SELECT o.category, COUNT(r.`Order ID`) AS ReturnedOrdersCount
+FROM orders o
+JOIN returns r ON o.`Order ID` = r.`Order ID`
+GROUP BY o.category;
+
+-- Difference between LEFT JOIN and RIGHT JOIN
+
+SELECT r.*, o.`Order ID`
+FROM returns r
+RIGHT JOIN orders o ON r.`Order ID` = o.`Order ID`;
+
+SELECT r.*, o.`Order ID`
+FROM returns r
+LEFT JOIN orders o ON r.`Order ID` = o.`Order ID`;
+
+
+-- Which customers have returned orders, and how many times?
+
+-- my attempt
+SELECT 
+o.`Customer Name`,
+COUNT(r.`Order ID`) AS order_count
+FROM orders o
+LEFT JOIN returns r ON o.`Order ID` = r.`Order ID`
+GROUP BY `Customer Name`
+HAVING COUNT(r.`ORDER ID`) > 0
+ORDER BY `order_count` DESC;
+
+-- answer 
+SELECT o.`Customer Name`, COUNT(r.`Order ID`) AS ReturnCount
+FROM orders o
+LEFT JOIN returns r ON o.`Order ID` = r.`Order ID`
+GROUP BY o.`Customer Name`
+HAVING COUNT(r.`Order ID`) > 0
+ORDER BY 2 DESC;
+
+-- Identify customers who have made at least five purchases and calculate their average order value.
+
+SELECT `Customer Name`, COUNT(*) AS TotalOrders, ROUND(AVG(Sales),2) AS AverageOrderValue
+FROM orders
+GROUP BY `Customer Name`
+HAVING COUNT(*) >= 5
+ORDER BY TotalOrders, AverageOrderValue DESC;
+
+
+-- Product Category Ranking: Rank product categories by total sales in descending order using window functions.
+SELECT Category,ROUND(SUM(Sales)) AS Total_Sales,
+RANK() OVER (ORDER BY SUM(Sales) DESC) AS CategoryRank
+FROM Orders
+GROUP BY Category
+ORDER BY Total_Sales DESC; 
 
 
 
