@@ -30,7 +30,7 @@ FROM
     penetration_rate;
     
     
--- Q1. Population Density
+-- Q2. Population Density
 -- ANSWER
 
 WITH density AS (
@@ -77,6 +77,160 @@ FROM
 ORDER BY 
     density ASC;
 
+
+
+-- Q3. Aggregate Listening Data
+-- ANSWER
+
+SELECT
+user_id,
+ROUND(SUM(IFNULL(listen_duration, 0)) / 60.0) AS total_listen_duration,
+COUNT(DISTINCT song_id) AS unique_song_count
+FROM listening_habits
+GROUP BY user_id;
+
+-- Q4. Customer Feedback Analysis
+-- ANSWER
+WITH filtered_comments AS (
+SELECT DISTINCT feedback_id, feedback_text, source_channel, comment_category
+FROM customer_feedback
+WHERE comment_category != 'short_comments'
+AND source_channel = 'social_media'
+ORDER BY feedback_id, feedback_text, source_channel, comment_category
+)
+SELECT feedback_id, feedback_text, source_channel, comment_category
+FROM filtered_comments
+ORDER BY feedback_id;
+
+-- Q5. Common Friends Script
+-- ANSWER
+
+WITH cte AS (
+    SELECT friend_id 
+    FROM friends
+    WHERE user_id = (SELECT user_id FROM users WHERE user_name = 'Karl')
+    INTERSECT
+    SELECT friend_id 
+    FROM friends
+    WHERE user_id = (SELECT user_id FROM users WHERE user_name = 'Hans')
+)
+
+SELECT cte.friend_id, u.user_name
+FROM cte
+JOIN users u ON cte.friend_id = u.user_id;
+
+-- Q6. Friday's Likes Count
+-- ANSWER
+
+WITH friendships_clean AS (
+    SELECT DISTINCT user_name1, user_name2
+    FROM friendships
+),
+friendships_expanded AS (
+    SELECT user_name1, user_name2 FROM friendships_clean
+    UNION ALL
+    SELECT user_name2 AS user_name1, user_name1 AS user_name2 FROM friendships_clean
+),
+likes_posts_joined AS (
+    SELECT 
+        l.user_name, 
+        l.post_id, 
+        l.date_liked,
+        p.user_name AS poster_name
+    FROM likes l
+    JOIN user_posts p ON l.post_id = p.post_id
+    WHERE l.date_liked IS NOT NULL
+),
+friends_likes AS (
+    SELECT lp.user_name, lp.post_id, lp.date_liked, lp.poster_name
+    FROM likes_posts_joined lp
+    JOIN friendships_expanded fe ON lp.user_name = fe.user_name1 AND lp.poster_name = fe.user_name2
+),
+friday_likes AS (
+    SELECT post_id, date_liked
+    FROM friends_likes
+    WHERE DAYOFWEEK(date_liked) = 6
+)
+SELECT DATE_FORMAT(date_liked, '%Y-%m-%d') AS date_liked, COUNT(post_id) AS likes
+FROM friday_likes
+GROUP BY date_liked
+ORDER BY date_liked;
+
+
+SELECT COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'user_posts';
+
+ALTER TABLE user_posts
+MODIFY COLUMN user_name VARCHAR(50),
+MODIFY COLUMN date_posted date;
+
+
+
+
+
+-- Q7.
+-- ANSWER
+
+-- Q8.
+-- ANSWER
+
+-- Q9.
+-- ANSWER
+
+-- Q10.
+-- ANSWER
+
+
+
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER
+
+-- Q3.
+-- ANSWER 
 
     
     
