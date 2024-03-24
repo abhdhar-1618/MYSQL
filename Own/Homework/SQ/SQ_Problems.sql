@@ -157,20 +157,28 @@ GROUP BY date_liked
 ORDER BY date_liked;
 
 
-SELECT COLUMN_NAME, DATA_TYPE
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'user_posts';
+-- Q7. Weekly Orders Report
 
-ALTER TABLE user_posts
-MODIFY COLUMN user_name VARCHAR(50),
-MODIFY COLUMN date_posted date;
-
-
-
-
-
--- Q7.
 -- ANSWER
+WITH filtered_orders AS (
+    SELECT 
+        stage_of_order,
+        DATE_FORMAT(week, '%Y-%m-%d') - INTERVAL (WEEKDAY(week) + 1) DAY AS week_start,
+        quantity  
+    FROM 
+        orders_analysis
+    WHERE 
+        QUARTER(week) = 1 AND  -- Filters for Q1
+        YEAR(week) = 2023  -- Filters for the year 2023
+)
+SELECT 
+    DATE_FORMAT(week_start, '%Y-%m-%d') AS week, 
+    sum(quantity)
+FROM 
+    filtered_orders
+GROUP BY 1
+ORDER BY 
+    week_start;
 
 -- Q8.
 -- ANSWER
