@@ -180,47 +180,219 @@ GROUP BY 1
 ORDER BY 
     week_start;
 
--- Q8.
+-- Q8. Top Monthly Sellers
 -- ANSWER
 
--- Q9.
+WITH january_sales AS (
+    SELECT *
+    FROM sales_data
+    WHERE month = '2024-01'
+),
+ranked_sales AS (
+    SELECT
+        *,
+        DENSE_RANK() OVER (PARTITION BY product_category ORDER BY total_sales DESC) AS sales_rank
+    FROM january_sales
+)
+SELECT
+    product_category,
+    seller_id,
+    total_sales,
+    month
+FROM
+    ranked_sales
+WHERE
+    sales_rank <= 3
+ORDER BY
+    product_category, sales_rank;
+
+-- Q9. Peak Online Time
 -- ANSWER
 
--- Q10.
+WITH user_activity_with_time_period AS (
+    SELECT
+        start_timestamp,
+        end_timestamp,
+        user_count,
+        device_type,
+        CONCAT(start_timestamp, ' to ', end_timestamp) AS time_period
+    FROM
+        user_activity
+),
+ranked_user_activity AS (
+    SELECT
+        *,
+        RANK() OVER (PARTITION BY device_type ORDER BY user_count DESC) AS `rank`
+    FROM
+        user_activity_with_time_period
+)
+SELECT
+    user_count,
+    time_period,
+    device_type
+FROM
+    ranked_user_activity
+WHERE
+    `rank` = 1;
+
+-- Q10. Movie Duration Match
 -- ANSWER
 
+SELECT
+    fs.flight_id,
+    ec.movie_id,
+    ec.duration AS movie_duration
+FROM
+    flight_schedule fs
+JOIN
+    entertainment_catalog ec ON ec.duration <= fs.flight_duration
+WHERE
+    fs.flight_id = 101
+ORDER BY
+    ec.duration;
 
-
-
--- Q3.
+-- Q11. Friday Purchases
 -- ANSWER
 
--- Q3.
+WITH RECURSIVE all_weeks AS (
+    SELECT 1 AS week_number
+    UNION ALL
+    SELECT week_number + 1 FROM all_weeks WHERE week_number < 13
+),
+friday_purchases AS (
+    SELECT WEEK(date) AS week_number,
+    AVG(amount_spent) AS mean_amount
+    FROM user_purchases
+    WHERE DAYNAME(date) = 'Friday' AND QUARTER(date) = 1
+    GROUP BY WEEK(date)
+)
+SELECT all_weeks.week_number,
+    COALESCE(friday_purchases.mean_amount, 0) AS mean_amount
+FROM all_weeks
+LEFT JOIN friday_purchases ON all_weeks.week_number = friday_purchases.week_number;
+
+-- Q12. Finding Doctors
 -- ANSWER
 
--- Q3.
+SELECT first_name, last_name
+FROM employee_list
+WHERE last_name = 'Johnson' AND profession = 'Doctor';
+
+
+-- Q13. Employees With Same Birth Month
+-- ANSWER
+SELECT profession AS department,
+    SUM(CASE WHEN MONTH(birthday) = 1 THEN 1 ELSE 0 END) AS month_1,
+    SUM(CASE WHEN MONTH(birthday) = 2 THEN 1 ELSE 0 END) AS month_2,
+    SUM(CASE WHEN MONTH(birthday) = 3 THEN 1 ELSE 0 END) AS month_3,
+    SUM(CASE WHEN MONTH(birthday) = 4 THEN 1 ELSE 0 END) AS month_4,
+    SUM(CASE WHEN MONTH(birthday) = 5 THEN 1 ELSE 0 END) AS month_5,
+    SUM(CASE WHEN MONTH(birthday) = 6 THEN 1 ELSE 0 END) AS month_6,
+    SUM(CASE WHEN MONTH(birthday) = 7 THEN 1 ELSE 0 END) AS month_7,
+    SUM(CASE WHEN MONTH(birthday) = 8 THEN 1 ELSE 0 END) AS month_8,
+    SUM(CASE WHEN MONTH(birthday) = 9 THEN 1 ELSE 0 END) AS month_9,
+    SUM(CASE WHEN MONTH(birthday) = 10 THEN 1 ELSE 0 END) AS month_10,
+    SUM(CASE WHEN MONTH(birthday) = 11 THEN 1 ELSE 0 END) AS month_11,
+    SUM(CASE WHEN MONTH(birthday) = 12 THEN 1 ELSE 0 END) AS month_12
+FROM employees_list
+GROUP BY profession;
+
+
+-- Q14. Most Profitable Companies
 -- ANSWER
 
--- Q3.
+SELECT company,
+       profit
+FROM
+  (SELECT *,
+          rank() OVER (
+                       ORDER BY profit DESC) as rnk
+   FROM
+     (SELECT company,
+             sum(profits) AS profit
+      FROM forbes_global_2010_2014
+      GROUP BY company) sq) sq2
+WHERE rnk <=3
+
+-- Q15. Workers With The Highest Salaries
+-- ANSWER (Below code is not running due to server error)
+
+SELECT *
+FROM
+  (SELECT CASE
+              WHEN salary =
+                     (SELECT max(salary)
+                      FROM worker) THEN worker_title
+          END AS best_paid_title
+   FROM worker a
+   INNER JOIN title b ON b.worker_ref_id=a.worker_id
+   ORDER BY best_paid_title) sq
+WHERE best_paid_title IS NOT NULL;
+
+-- Q16. Users By Average Session Time
+-- ANSWER
+SELECT user_id, AVG(TIMESTAMPDIFF(SECOND, load_time, exit_time)) AS session_time
+FROM (
+    SELECT 
+        DATE(timestamp), 
+        user_id, 
+        MAX(IF(action = 'page_load', timestamp, NULL)) as load_time,
+        MIN(IF(action = 'page_exit', timestamp, NULL)) as exit_time
+    FROM facebook_web_log
+    GROUP BY 1, 2
+) t 
+GROUP BY user_id
+HAVING session_time IS NOT NULL;
+
+
+-- Q17. Activity Rank
 -- ANSWER
 
--- Q3.
--- ANSWER
+SELECT from_user, 
+       count(*) as total_emails,
+       ROW_NUMBER() OVER(ORDER BY count(*) DESC, from_user ASC) AS ranked
+FROM google_gmail_emails 
+GROUP BY from_user
+ORDER BY 2 DESC, 1
 
--- Q3.
--- ANSWER
+-- Q18. Algorithm Performance
 
--- Q3.
--- ANSWER
+-- ANSWER (Below code is not running due to server error)
+/*
+SELECT search_id, 
+       MAX(CASE WHEN clicked = 0 THEN 1
+            WHEN clicked = 1 AND search_results_position > 3 THEN 2
+            WHEN clicked = 1 AND search_results_position <= 3 THEN 3
+            END) AS rating
+FROM fb_search_events
+GROUP BY 1
+*/
+-- Q19. Distances Traveled
 
--- Q3.
--- ANSWER
+-- ANSWER (Below code is not running due to server error)
 
--- Q3.
--- ANSWER
+SELECT
+    u.id,
+    u.name,
+    SUM(r.distance) total_dist
+FROM
+    lyft_rides_log r
+INNER JOIN
+    lyft_users u ON r.user_id = u.id
+GROUP BY u.id, u.name
+ORDER BY total_dist DESC
+LIMIT 10;
 
--- Q3.
--- ANSWER
+
+-- Q20.Finding User Purchases
+-- ANSWER (Reults are not showing as there is date formatting issue. Code is correct)
+
+SELECT DISTINCT a1.user_id
+FROM amazon_transactions a1
+JOIN amazon_transactions a2 ON a1.user_id = a2.user_id
+AND a1.id <> a2.id
+AND DATEDIFF(a2.created_at, a1.created_at) BETWEEN 0 AND 7
+ORDER BY a1.user_id;
 
 -- Q3.
 -- ANSWER
