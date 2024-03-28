@@ -22,3 +22,4 @@ To make your document look professionally produced, Word provides header, footer
 
 27-03-2024 23:22:24 work started on Udemy data for course SQL - MySQL for Data Analytics and Business Intelligence
 
+28-03-2024 16:57:32 SQ commands list file added
