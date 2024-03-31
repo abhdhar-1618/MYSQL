@@ -1,14 +1,23 @@
 -- LEFT JOIN
 
 SELECT *
-FROM Employee
-LEFT JOIN Project ON Employee.EmpID = Project.EmpID;
+FROM Project
+LEFT JOIN Employee ON Project.EmpID = Employee.EmpID;
 
 -- RIGHT JOIN
 
 SELECT *
 FROM Employee
 RIGHT JOIN Project ON Employee.EmpID = Project.EmpID;
+
+
+-- inner join
+
+SELECT *
+FROM Employee
+INNER JOIN Project ON Employee.EmpID = Project.EmpID;
+
+
 
 -- Retrieve all columns from the Employee table.
 SELECT * FROM employee;
@@ -42,6 +51,10 @@ FROM Employee e
 LEFT JOIN Project p ON e.EmpID = p.EmpID
 GROUP BY e.EmpID;
 
+
+SELECT table_name, table_rows
+FROM information_schema.tables
+WHERE table_schema = 'edureka';
 
 
 
