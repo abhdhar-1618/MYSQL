@@ -38,13 +38,15 @@ SELECT * FROM staff_list;
 SELECT * FROM store;
 
 
-SELECT * 
+SELECT DISTINCT * 
 FROM film
-LEFT JOIN inventory ON film.film_id = inventory.film_id;
+LEFT JOIN inventory ON film.film_id = inventory.film_id
+LIMIT 5;
 
-SELECT * 
+SELECT DISTINCT * 
 FROM film
-RIGHT JOIN inventory ON film.film_id = inventory.film_id;
+RIGHT JOIN inventory ON film.film_id = inventory.film_id
+LIMIT 5;
 
 
 SELECT * 
@@ -52,6 +54,18 @@ FROM film
 LEFT JOIN inventory ON film.film_id = inventory.film_id
 WHERE inventory.film_id IS NULL OR film.film_id IS NULL;
 
+SELECT table_name, table_rows
+FROM information_schema.tables
+WHERE table_schema = 'employees';
+
+SELECT * FROM titles;
+SELECT * FROM salaries;
+SELECT * FROM employees;
+SELECT * FROM dept_manager;
+SELECT * FROM dept_emp_latest_date;
+SELECT * FROM dept_emp;
+SELECT * FROM departments;
+SELECT * FROM current_dept_emp;
 
 
 

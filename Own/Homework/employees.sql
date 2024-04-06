@@ -128,6 +128,77 @@ SELECT
 FROM 
     employees;
 
+/*
+find the median salary of males and females. 
+there should be two columns in the output. one is gender another is salary_amount.
+*/
+
+SELECT 
+    m.gender, ROUND(m.median_salary) AS median_salary
+FROM
+    (SELECT 
+        'Male' AS gender, AVG(salary) AS median_salary
+    FROM
+        employees e
+    JOIN salaries s ON e.emp_no = s.emp_no
+    WHERE
+        e.gender = 'M'
+    GROUP BY gender UNION ALL SELECT 
+        'Female' AS gender, AVG(salary) AS median_salary
+    FROM
+        employees e
+    JOIN salaries s ON e.emp_no = s.emp_no
+    WHERE
+        e.gender = 'F'
+    GROUP BY gender) AS m;
+
+
+-- Retrieve the total number of employees in the company.
+
+SELECT COUNT(*) AS Total_Employees
+FROM employees;
+
+-- Display the top 5 highest-paid employees in the company along with their names and salaries.
+-- WIP .. avoid duplicate employee names in the output
+SELECT
+CONCAT(first_name, ' ', last_name) AS employee_name,
+MAX(s.salary) AS salary
+FROM employees e
+JOIN salaries s
+ON e.emp_no = s.emp_no
+GROUP BY
+employee_name 
+ORDER BY
+salary DESC
+LIMIT 5;
+
+/* Determine the employee with the highest total salary earned
+in the month of July 2002, along with their name and total salary amount.
+ */
+
+SELECT
+CONCAT(e.first_name, ' ', last_name) AS Employee_Name,
+SUM(s.salary) AS Total_Salary
+FROM employees e
+JOIN salaries s ON e.emp_no = s.emp_no
+WHERE
+s.from_date >= '2002-07-01' AND s.from_date <= '2002-07-31' AND (s.to_date>= '2002-07-01' OR s.to_date IS NULL)
+GROUP BY
+e.emp_no
+ORDER BY
+total_salary DESC
+LIMIT 1;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
