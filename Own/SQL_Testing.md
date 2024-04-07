@@ -27,3 +27,5 @@ To make your document look professionally produced, Word provides header, footer
 31-03-2024 23:38:59 edureka sql file updated
 
 06-04-2024 21:49:19 sakila and udemy employees sql script updated
+
+07-04-2024 21:55:34 employees sql script updated

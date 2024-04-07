@@ -159,7 +159,7 @@ SELECT COUNT(*) AS Total_Employees
 FROM employees;
 
 -- Display the top 5 highest-paid employees in the company along with their names and salaries.
--- WIP .. avoid duplicate employee names in the output
+
 SELECT
 CONCAT(first_name, ' ', last_name) AS employee_name,
 MAX(s.salary) AS salary
@@ -189,12 +189,46 @@ ORDER BY
 total_salary DESC
 LIMIT 1;
 
+/*
+Retrieve the list of all departments and the number of employees in each department. 
+If a department has no employees, display 0 as the count.
+*/
+SELECT 
+d.dept_name, 
+COUNT(de.emp_no) AS employee_count
+FROM departments d
+LEFT JOIN dept_emp de 
+ON d.dept_no = de.dept_no
+GROUP BY d.dept_name;
+
+/*
+List all employees and their salaries. 
+If an employee does not have a salary record, display NULL for the salary.
+*/
+
+SELECT
+CONCAT(e.first_name, " " , e.last_name) AS employee_name,
+e.emp_no,
+s.salary
+FROM employees e
+LEFT JOIN salaries s
+ON e.emp_no = s.emp_no;
 
 
-
-
-
-
+/*
+Retrieve the list of all departments and their managers' names. 
+If a department does not have a manager, display "No Manager" as the manager's name.
+*/
+SELECT
+d.dept_name,
+COALESCE(CONCAT(e.first_name, " " , e.last_name), 'NO Manager') AS Manager_Name
+FROM departments d
+LEFT JOIN
+dept_manager dm 
+ON d.dept_no = dm.dept_no
+LEFT JOIN
+employees e
+ON dm.emp_no = e.emp_no; 
 
 
 
