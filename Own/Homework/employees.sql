@@ -228,9 +228,93 @@ dept_manager dm
 ON d.dept_no = dm.dept_no
 LEFT JOIN
 employees e
-ON dm.emp_no = e.emp_no; 
+ON dm.emp_no = e.emp_no;
 
 
+/*
+List all employees along with the department they belong to. 
+If an employee does not belong to any department, 
+display "Unassigned" as the department name.
+*/
+
+SELECT
+CONCAT(e.first_name, ' ', e.last_name) AS employee_Name,
+COALESCE(d.dept_name, 'Unassigned') AS Department_Name
+FROM employees e
+LEFT JOIN dept_emp de
+ON e.emp_no = de.emp_no
+LEFT JOIN departments d
+ON de.dept_no = d.dept_no;
+
+/*
+Retrieve the list of all employees and their managers' names. 
+If an employee does not have a manager, display NULL for the manager's name.
+*/
+
+SELECT
+CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
+CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+FROM employees e
+LEFT JOIN dept_emp de
+ON e.emp_no = de.emp_no
+LEFT JOIN dept_manager dm
+ON de.dept_no = dm.dept_no
+LEFT JOIN employees m
+ON dm.emp_no = m.emp_no;
+
+
+-- Total count of employees working under each manager with their department names
+
+SELECT
+CONCAT(m.first_name, ' ', m.last_name) AS manager_name,
+d.dept_name AS department_name,
+COUNT(e.emp_no) AS total_employee
+FROM employees m
+JOIN dept_manager dm
+ON m.emp_no = dm.emp_no
+JOIN departments d
+ON dm.dept_no = d.dept_no
+LEFT JOIN dept_emp de
+ON d.dept_no = de.dept_no
+LEFT JOIN employees e
+ON de.emp_no = e.emp_no
+GROUP BY
+manager_name,
+department_name;
+
+/*
+total count of each titles
+*/
+
+SELECT COUNT(title) AS title_count,
+title
+FROM titles
+GROUP BY title;
+
+/*
+show male count and female count of each title
+*/
+
+SELECT t.title,
+SUM(CASE WHEN e.gender = 'M' THEN 1 ELSE 0 END) AS Males,
+SUM(CASE WHEN e.gender = 'F' THEN 1 ELSE 0 END) AS Females
+FROM titles t
+JOIN employees e
+ON t.emp_no = e.emp_no
+GROUP BY
+t.title;
+
+/*
+List the department names along with the number of employees in each department.
+*/
+
+SELECT 
+d.dept_name, 
+COUNT(de.emp_no) AS employee_count
+FROM departments d
+LEFT JOIN dept_emp de
+ON d.dept_no = de.dept_no
+GROUP BY d.dept_name;
 
 
 
