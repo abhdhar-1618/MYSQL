@@ -316,6 +316,35 @@ LEFT JOIN dept_emp de
 ON d.dept_no = de.dept_no
 GROUP BY d.dept_name;
 
+/*
+Find duplicate data in "Salaries" table
+*/
+
+SELECT 
+    CASE 
+        WHEN COUNT(*) > 1 THEN NULL
+        ELSE 'NULL'
+    END AS duplicate_data
+FROM 
+    salaries
+GROUP BY 
+    emp_no, salary, from_date, to_date
+HAVING 
+    COUNT(*) > 1;
+
+
+-- write a query that shows employee full name and their hiring year?
+
+SELECT 
+CONCAT(first_name, ' ', last_name) AS employee_name,
+YEAR(hire_date) AS hiring_year
+FROM employees;
+
+
+
+
+
+
 
 
 
