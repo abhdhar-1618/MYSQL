@@ -161,7 +161,7 @@ Return only the first 10 records in your result.
 
 SELECT 
 region, 
-AVG(gdp_percapita) AS avg_gdp
+AVG(gdp_percapita) AS avg_gdpv
 FROM countries AS c
 LEFT JOIN economies AS e
 USING(code)
@@ -172,6 +172,61 @@ ORDER BY avg_gdp DESC
 -- Return only first 10 records
 LIMIT 10;
 
+/*
+Perform a full join with countries (left) and currencies (right).
+Filter for the North America region or NULL country names.
+(some data may be missing from the below tables)
+*/
+
+SELECT name AS country, code, region, basic_unit
+FROM countries
+-- Join to currencies
+FULL JOIN currencies
+USING (code)
+-- Where region is North America or name is null
+WHERE region = 'North America'OR name IS NULL
+ORDER BY region;
+
+
+/*
+Complete the FULL JOIN with countries as c1 on the left and languages as l on the right, 
+using code to perform this join.Next, chain this join with another FULL JOIN, 
+placing currencies on the right, joining on code again.
+*/
+/*
+SELECT 
+	c1.name AS country, 
+    region, 
+    l.name AS language,
+	basic_unit, 
+    frac_unit
+FROM countries as c1 
+-- Full join with languages (alias as l)
+FULL JOIN languages l
+USING (code)
+-- Full join with currencies (alias as c2)
+FULL JOIN currencies c2
+USING (code)
+WHERE region LIKE 'M%esia';
+
+*/
+
+SELECT 
+    c1.name AS country, 
+    region, 
+    l.name AS language,
+    c2.basic_unit, 
+    c2.frac_unit
+FROM 
+    countries AS c1 
+LEFT JOIN 
+    languages AS l ON c1.code = l.code
+RIGHT JOIN 
+    currencies AS c2 ON c1.code = c2.code
+WHERE 
+    region LIKE 'M%esia';
+    
+    
 
 
 
