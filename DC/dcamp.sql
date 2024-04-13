@@ -184,7 +184,7 @@ FROM countries
 FULL JOIN currencies
 USING (code)
 -- Where region is North America or name is null
-WHERE region = 'North America'OR name IS NULL
+WHERE region = 'North America' OR name IS NULL
 ORDER BY region;
 
 
@@ -225,10 +225,22 @@ RIGHT JOIN
     currencies AS c2 ON c1.code = c2.code
 WHERE 
     region LIKE 'M%esia';
-    
-    
+
+-- TESTING
+SELECT * FROM monarchs
+INNER JOIN presidents
+ON monarchs.country = presidents.country;
 
 
+-- UNION
+
+-- Select all fields from economies2015
+SELECT * FROM economies2015
+-- Set operation
+UNION
+-- Select all fields from economies2019
+SELECT * FROM economies2019
+ORDER BY code, year;
 
 
 
