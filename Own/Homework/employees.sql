@@ -342,7 +342,30 @@ FROM employees;
 
 
 
+/*
+Retrieve the list of employees along with their titles and departments. 
+Display the department name and the title of each employee. 
+If an employee does not have a title or department assigned, display "No Title" or "No Department" respectively.
+*/
 
+SELECT DISTINCT
+    CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
+    CASE 
+        WHEN t.title IS NOT NULL THEN t.title
+        ELSE 'No Title'
+    END AS employee_title,
+    CASE 
+        WHEN d.dept_name IS NOT NULL THEN d.dept_name
+        ELSE 'No Department'
+    END AS employee_department
+FROM 
+    employees e
+LEFT JOIN 
+    titles t ON e.emp_no = t.emp_no
+LEFT JOIN 
+    dept_emp de ON e.emp_no = de.emp_no
+LEFT JOIN 
+    departments d ON de.dept_no = d.dept_no;
 
 
 
