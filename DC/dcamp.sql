@@ -383,3 +383,116 @@ WHERE m.season = '2012/2013'
 -- Group by stage
 GROUP BY m.stage;
 
+/*
+Calculate the average home goals and average away goals from the match table for each stage in the FROM clause subquery.
+Add a subquery to the WHERE clause that calculates the overall average home goals.
+Filter the main query for stages where the average home goals is higher than the overall average.
+Select the stage and avg_goals columns from the s subquery into the main query.
+*/
+
+SELECT 
+	-- Select the stage and average goals from the subquery
+	s.stage,
+	ROUND(s.avg_goals,2) AS avg_goals
+FROM 
+	-- Select the stage and average goals in 2012/2013
+	(SELECT
+		 stage,
+         AVG(home_goal + away_goal) AS avg_goals
+	 FROM matches
+	 WHERE season = '2012/2013'
+	 GROUP BY stage) AS s
+WHERE 
+	-- Filter the main query using the subquery
+	s.avg_goals > (SELECT AVG(home_goal + away_goal) 
+                    FROM matches WHERE season = '2012/2013');
+                    
+                    
+/*
+Create a subquery in SELECT that yields the average goals scored in the 2012/2013 season. Name the new column overall_avg.
+Create a subquery in FROM that calculates the average goals scored in each stage during the 2012/2013 season.
+Filter the main query for stages where the average goals exceeds the overall average in 2012/2013.
+*/
+
+SELECT 
+	-- Select the stage and average goals from s
+	s.stage,
+    ROUND(s.avg_goals,2) AS avg_goal,
+    -- Select the overall average for 2012/2013
+    (SELECT AVG(home_goal + away_goal) FROM matches WHERE season = '2012/2013') AS overall_avg
+FROM 
+	-- Select the stage and average goals in 2012/2013 from match
+	(SELECT
+		 stage,
+         AVG(home_goal + away_goal) AS avg_goals
+	 FROM matches
+	 WHERE season = '2012/2013'
+	 GROUP BY stage) AS s
+WHERE 
+	-- Filter the main query using the subquery
+	s.avg_goals > (SELECT AVG(home_goal + away_goal) 
+                    FROM matches WHERE season = '2012/2013');
+                    
+/*
+Select the country_id, date, home_goal, and away_goal columns in the main query.
+Complete the AVG value in the subquery.
+Complete the subquery column references, so that country_id is matched in the main and subquery.
+*/
+
+SELECT 
+	-- Select country ID, date, home, and away goals from match
+	main.country_id,
+    main.date,
+    main.home_goal, 
+    main.away_goal
+FROM matches AS main
+WHERE 
+	-- Filter the main query by the subquery
+	(home_goal + away_goal) > 
+        (SELECT AVG((sub.home_goal + sub.away_goal) * 3)
+         FROM matches AS sub
+         -- Join the main query to the subquery in WHERE
+         WHERE main.country_id = sub.country_id);
+         
+/*
+Select the country_id, date, home_goal, and away_goal columns in the main query.
+Complete the subquery: Select the matches with the highest number of total goals.
+Match the subquery to the main query using country_id and season.
+Fill in the correct logical operator so that total goals equals the max goals recorded in the subquery.
+*/
+
+SELECT 
+	-- Select country ID, date, home, and away goals from match
+	main.country_id,
+    main.date,
+    main.home_goal,
+    main.away_goal
+FROM matches AS main
+WHERE 
+	-- Filter for matches with the highest number of goals scored
+	(home_goal + away_goal) = 
+        (SELECT MAX(sub.home_goal + sub.away_goal)
+         FROM matches AS sub
+         WHERE main.country_id = sub.country_id
+               AND main.season = sub.season);
+
+SELECT 
+	-- Select country ID, date, home, and away goals from match
+	country_id,
+    date,
+    home_goal,
+    away_goal
+FROM (
+    SELECT 
+        main.country_id,
+        main.date,
+        main.home_goal,
+        main.away_goal,
+        RANK() OVER (PARTITION BY main.country_id, main.season ORDER BY main.home_goal + main.away_goal DESC) AS goal_rank
+    FROM matches AS main
+) AS ranked
+WHERE goal_rank = 1;
+
+
+
+
