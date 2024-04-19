@@ -370,6 +370,20 @@ LEFT JOIN
 
 
 
+SELECT 
+    d.dept_name,
+    AVG(CASE WHEN e.gender = 'M' THEN s.salary ELSE NULL END) AS avg_male_salary,
+    AVG(CASE WHEN e.gender = 'F' THEN s.salary ELSE NULL END) AS avg_female_salary
+FROM 
+    departments d
+JOIN 
+    dept_emp de ON d.dept_no = de.dept_no
+JOIN 
+    employees e ON de.emp_no = e.emp_no
+JOIN 
+    salaries s ON e.emp_no = s.emp_no
+GROUP BY 
+    d.dept_name;
 
 
 

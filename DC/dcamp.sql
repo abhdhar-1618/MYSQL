@@ -493,6 +493,48 @@ FROM (
 ) AS ranked
 WHERE goal_rank = 1;
 
+/*
+Select the country_id, date, home_goal, and away_goal columns in the main query.
+Complete the subquery: Select the matches with the highest number of total goals.
+Match the subquery to the main query using country_id and season.
+Fill in the correct logical operator so that total goals equals the max goals recorded in the subquery.
+*/
 
+SELECT 
+	-- Select country ID, date, home, and away goals from match
+	main.country_id,
+    main.date,
+    main.home_goal,
+    main.away_goal
+FROM matches AS main
+WHERE 
+	-- Filter for matches with the highest number of goals scored
+	(home_goal + away_goal) = 
+        (SELECT MAX(sub.home_goal + sub.away_goal)
+         FROM matches AS sub
+         WHERE main.country_id = sub.country_id
+               AND main.season = sub.season);
+
+
+/*
+Complete the main query to select the season and the max total goals in a match for each season. Name this max_goals.
+Complete the first simple subquery to select the max total goals in a match across all seasons. Name this overall_max_goals.
+Complete the nested subquery to select the maximum total goals in a match played in July across all seasons.
+Select the maximum total goals in the outer subquery. Name this entire subquery july_max_goals.
+*/
+
+SELECT
+	-- Select the season and max goals scored in a match
+	season,
+    MAX(home_goal + away_goal) AS max_goals,
+    -- Select the overall max goals scored in a match
+   (SELECT MAX(home_goal + away_goal) FROM matches) AS overall_max_goals,
+   -- Select the max number of goals scored in any match in July
+   (SELECT MAX(home_goal + away_goal) 
+    FROM matches
+    WHERE id IN (
+          SELECT id FROM matches WHERE EXTRACT(MONTH FROM date) = 07)) AS july_max_goals
+FROM matches
+GROUP BY season;
 
 
