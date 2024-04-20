@@ -538,3 +538,215 @@ FROM matches
 GROUP BY season;
 
 
+/*
+Generate a list of matches where at least one team scored 5 or more goals.
+*/
+
+-- Select matches where a team scored 5+ goals
+SELECT
+	country_id,
+    season,
+	id
+FROM matches
+WHERE home_goal >=5 OR away_goal >=5;
+
+
+/*
+Turn the query from the previous step into a subquery in the FROM statement.
+COUNT the match ids generated in the previous step, and group the query by country_id and season.
+*/
+
+-- Count match ids
+SELECT
+    country_id,
+    season,
+    COUNT(id) AS matches
+-- Set up and alias the subquery
+FROM (
+	SELECT
+    	country_id,
+    	season,
+    	id
+	FROM matches
+	WHERE home_goal >= 5 OR away_goal >= 5)
+    AS subquery
+-- Group by country_id and season
+GROUP BY country_id, season;
+
+
+/*
+Finally, declare the same query from step 2 as a subquery in FROM with the alias outer_s.
+Left join it to the country table using the outer query's country_id column.
+Calculate an AVG of high scoring matches per country in the main query.
+*/
+
+SELECT
+	c.name AS country,
+    -- Calculate the average matches per season
+	AVG(outer_s.matches) AS avg_seasonal_high_scores
+FROM country AS c
+-- Left join outer_s to country
+LEFT JOIN (
+  SELECT country_id, season,
+         COUNT(id) AS matches
+  FROM (
+    SELECT country_id, season, id
+	FROM matches
+	WHERE home_goal >= 5 OR away_goal >= 5) AS inner_s
+  -- Close parentheses and alias the subquery
+  GROUP BY country_id, season) AS outer_s
+ON c.id = outer_s.country_id
+GROUP BY country;
+
+/*
+Complete the syntax to declare your CTE.
+Select the country_id and match id from the match table in your CTE.
+Left join the CTE to the league table using country_id.
+*/
+
+-- Set up your CTE
+WITH match_list AS (
+    SELECT 
+  		country_id, 
+  		id
+    FROM matches
+    WHERE (home_goal + away_goal) >= 10)
+-- Select league and count of matches from the CTE
+SELECT
+    l.name AS league,
+    COUNT(match_list.id) AS matches
+FROM league AS l
+-- Join the CTE to the league table
+LEFT JOIN match_list ON l.id = match_list.country_id
+GROUP BY l.name;
+
+/*
+Declare your CTE, where you create a list of all matches with the league name.
+Select the league, date, home, and away goals from the CTE.
+Filter the main query for matches with 10 or more goals.
+*/
+
+-- Set up your CTE
+WITH match_list AS (
+  -- Select the league, date, home, and away goals
+    SELECT 
+  		l.name AS league, 
+     	m.date, 
+  		m.home_goal, 
+  		m.away_goal,
+       (m.home_goal + m.away_goal) AS total_goals
+    FROM matches AS m
+    LEFT JOIN league as l ON m.country_id = l.id)
+-- Select the league, date, home, and away goals from the CTE
+SELECT league, date, home_goal, away_goal
+FROM match_list
+-- Filter by total goals
+WHERE total_goals >= 10;
+
+
+/*
+Declare a CTE that calculates the total goals from matches in August of the 2013/2014 season.
+Left join the CTE onto the league table using country_id from the match_list CTE.
+Filter the list on the inner subquery to only select matches in August of the 2013/2014 season.
+*/
+
+
+-- Set up your CTE
+WITH match_list AS (
+    SELECT 
+  		country_id,
+  	   (home_goal + away_goal) AS goals
+    FROM matches
+  	-- Create a list of match IDs to filter data in the CTE
+    WHERE id IN (
+       SELECT id
+       FROM matches
+       WHERE season = '2013/2014' AND EXTRACT(MONTH FROM date) = 8))
+-- Select the league name and average of goals in the CTE
+SELECT 
+	l.name,
+    AVG(match_list.goals)
+FROM league AS l
+-- Join the CTE onto the league table
+LEFT JOIN match_list ON l.id = match_list.country_id
+GROUP BY l.name;
+
+/*
+Create a query that left joins team to match in order to get the identity of the home team. This becomes the subquery in the next step.
+*/
+
+SELECT 
+	m.id, 
+    t.team_long_name AS hometeam
+-- Left join team to match
+FROM matches AS m
+LEFT JOIN TEAM as t
+ON m.hometeam_id = team_api_id;
+
+/*
+Add a second subquery to the FROM statement to get the away team name, 
+changing only the hometeam_id. Left join both subqueries to the match table on the id column.
+*/
+
+SELECT
+	m.date,
+    -- Get the home and away team names
+    home.hometeam,
+    away.awayteam,
+    m.home_goal,
+    m.away_goal
+FROM matches AS m
+
+-- Join the home subquery to the match table
+LEFT JOIN (
+  SELECT matches.id, team.team_long_name AS hometeam
+  FROM matches
+  LEFT JOIN team
+  ON matches.hometeam_id = team.team_api_id) AS home
+ON home.id = m.id
+
+-- Join the away subquery to the match table
+LEFT JOIN (
+  SELECT matches.id, team.team_long_name AS awayteam
+  FROM matches
+  LEFT JOIN team
+  -- Get the away team ID in the subquery
+  ON matches.awayteam_id = team.team_api_id) AS away
+ON away.id = m.id;
+
+
+/*
+Using a correlated subquery in the SELECT statement, match the team_api_id column from team to the hometeam_id from match.
+*/
+
+SELECT
+    m.date,
+   (SELECT team_long_name
+    FROM team AS t
+    -- Connect the team to the match table
+    WHERE t.team_api_id = m.hometeam_id) AS hometeam
+FROM matches AS m;
+
+/*
+Create a second correlated subquery in SELECT, yielding the away team's name.
+Select the home and away goal columns from match in the main query.
+*/
+
+SELECT
+    m.date,
+    (SELECT team_long_name
+     FROM team AS t
+     WHERE t.team_api_id = m.hometeam_id) AS hometeam,
+    -- Connect the team to the match table
+    (SELECT team_long_name
+     FROM team AS t
+     WHERE t.team_api_id = m.awayteam_id) AS awayteam,
+    -- Select home and away goals
+     m.home_goal,
+     m.away_goal
+FROM matches AS m;
+
+
+
+
+
