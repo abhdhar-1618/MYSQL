@@ -747,6 +747,339 @@ SELECT
 FROM matches AS m;
 
 
+/*
+Select id from match and team_long_name from team. 
+Join these two tables together on hometeam_id in match and team_api_id in team.
+*/
+
+SELECT 
+	-- Select match id and team long name
+    m.id, 
+    t.team_long_name AS hometeam
+FROM matches AS m
+-- Join team to match using team_api_id and hometeam_id
+LEFT JOIN team AS t 
+ON t.team_api_id = m.hometeam_id ;
 
 
+/*
+Declare the query from the previous step as a common table expression. 
+SELECT everything from the CTE into the main query. Your results will not change at this step!
+*/
 
+-- Declare the home CTE
+WITH home AS (
+	SELECT m.id, t.team_long_name AS hometeam
+	FROM matches AS m
+	LEFT JOIN team AS t 
+	ON m.hometeam_id = t.team_api_id)
+-- Select everything from home
+SELECT *
+FROM home;
+
+/*
+Let's declare the second CTE, away. Join it to the first CTE on the id column.
+The date, home_goal, and away_goal columns have been added to the CTEs. SELECT them into the main query.
+*/
+
+WITH home AS (
+  SELECT m.id, m.date, 
+  		 t.team_long_name AS hometeam, m.home_goal
+  FROM matches AS m
+  LEFT JOIN team AS t 
+  ON m.hometeam_id = t.team_api_id),
+-- Declare and set up the away CTE
+away AS (
+  SELECT m.id, m.date, 
+  		 t.team_long_name AS awayteam, m.away_goal
+  FROM matches AS m
+  LEFT JOIN team AS t 
+  ON m.awayteam_id = t.team_api_id)
+-- Select date, home_goal, and away_goal
+SELECT 
+	home.date,
+    home.hometeam,
+    away.awayteam,
+    home.home_goal,
+    away.away_goal
+-- Join away and home on the id column
+FROM home
+INNER JOIN away
+ON home.id = away.id;
+
+
+/*
+Select the match ID, country name, season, home, and away goals from the match and country tables.
+Complete the query that calculates the average number of goals scored 
+overall and then includes the aggregate value in each row using a window function.
+*/
+
+SELECT 
+	-- Select the id, country name, season, home, and away goals
+	m.id, 
+    c.name AS country, 
+    m.season,
+	m.home_goal,
+	m.away_goal,
+    -- Use a window to include the aggregate average in each row
+	AVG(m.home_goal + m.away_goal) OVER () AS overall_avg
+FROM matches AS m
+LEFT JOIN country AS c ON m.country_id = c.id;
+
+/*
+Select the league name and average total goals scored from league and match.
+Complete the window function so it calculates the rank of average goals scored across all leagues in the database.
+Order the rank by the average total of home and away goals scored.
+*/
+
+SELECT 
+	-- Select the league name and average goals scored
+	l.name AS league,
+    AVG(m.home_goal + m.away_goal) AS avg_goals,
+    -- Rank each league according to the average goals
+    RANK() OVER (ORDER BY AVG(m.home_goal + m.away_goal)) AS league_rank
+FROM league AS l
+LEFT JOIN matches AS m 
+ON l.id = m.country_id
+WHERE m.season = '2011/2012'
+GROUP BY l.name
+-- Order the query by the rank you created
+ORDER BY league_rank;
+
+
+/*
+Complete the same parts of the query as the previous exercise.
+Complete the window function to rank each league from highest to lowest average goals scored.
+Order the main query by the rank you just created.
+*/
+
+SELECT 
+	-- Select the league name and average goals scored
+	l.name AS league,
+    AVG(m.home_goal + m.away_goal) AS avg_goals,
+    -- Rank leagues in descending order by average goals
+    RANK () OVER(ORDER BY AVG(m.home_goal + m.away_goal) DESC) AS league_rank
+FROM league AS l
+LEFT JOIN matches AS m 
+ON l.id = m.country_id
+WHERE m.season = '2011/2012'
+GROUP BY l.name
+-- Order the query by the rank you created
+ORDER BY league_rank;
+
+/*
+Complete the two window functions that calculate the home and away goal averages. 
+Partition the window functions by season to calculate separate averages for each season.
+Filter the query to only include matches played by Legia Warszawa, id = 8673.
+*/
+
+SELECT
+	date,
+	season,
+	home_goal,
+	away_goal,
+	CASE WHEN hometeam_id = 8673 THEN 'home' 
+		 ELSE 'away' END AS warsaw_location,
+    -- Calculate the average goals scored partitioned by season
+    AVG(home_goal) OVER (PARTITION BY season) AS season_homeavg,
+    AVG(away_goal) OVER (PARTITION BY season) AS season_awayavg
+FROM matches
+-- Filter the data set for Legia Warszawa matches only
+WHERE 
+	hometeam_id = 8673 
+    OR awayteam_id = 8673
+ORDER BY (home_goal + away_goal) DESC;
+
+/*
+Construct two window functions partitioning the average of home and away goals by season and month.
+Filter the dataset by Legia Warszawa's team ID (8673) so that the window calculation only includes matches involving them.
+*/
+
+SELECT 
+	date,
+	season,
+	home_goal,
+	away_goal,
+	CASE WHEN hometeam_id = 8673 THEN 'home' 
+         ELSE 'away' END AS warsaw_location,
+	-- Calculate average goals partitioned by season and month
+    AVG(home_goal) OVER (PARTITION BY season, EXTRACT(MONTH FROM date)) AS season_mo_home,
+    AVG(away_goal) OVER (PARTITION BY season, EXTRACT(MONTH FROM date)) AS season_mo_away
+FROM matches
+WHERE 
+	hometeam_id = 8673
+    OR awayteam_id = 8673
+ORDER BY (home_goal + away_goal) DESC;
+
+/*
+Complete the window function by:
+Assessing the running total of home goals scored by FC Utrecht.
+Assessing the running average of home goals scored.
+Ordering both the running average and running total by date.
+*/
+
+SELECT 
+	date,
+	home_goal,
+	away_goal,
+    -- Create a running total and running average of home goals
+    SUM(home_goal) OVER(ORDER BY date 
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total,
+    AVG(home_goal) OVER(ORDER BY date 
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_avg
+FROM matches
+WHERE 
+	hometeam_id = 9908 
+	AND season = '2011/2012';
+    
+    
+/*
+Complete the window function by:
+Assessing the running total of home goals scored by FC Utrecht.
+Assessing the running average of home goals scored.
+Ordering both the running average and running total by date, descending.
+*/
+
+SELECT 
+	-- Select the date, home goal, and away goals
+	date,
+    home_goal,
+    away_goal,
+    -- Create a running total and running average of home goals
+    SUM(home_goal) OVER(ORDER BY date DESC
+         ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS running_total,
+    AVG(home_goal) OVER(ORDER BY date DESC
+         ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS running_avg
+FROM matches
+WHERE 
+	awayteam_id = 9908 
+    AND season = '2011/2012';
+    
+    
+/*
+Create a CASE statement that identifies each match as a win, lose, or tie for Manchester United.
+Fill out the logical operators for each WHEN clause in the CASE statement (equals, greater than, less than).
+Join the tables on home team ID from match, and team_api_id from team.
+Filter the query to only include games from the 2014/2015 season where Manchester United was the home team.
+*/
+
+SELECT 
+	m.id, 
+    t.team_long_name,
+    -- Identify matches as home/away wins or ties
+	CASE 
+		WHEN m.home_goal > m.away_goal THEN 'MU Win'
+		WHEN m.home_goal < m.away_goal THEN 'MU Loss'
+        ELSE 'Tie' 
+    END AS outcome
+FROM matches AS m
+-- Left join team on the home team ID and team API id
+LEFT JOIN team AS t 
+ON m.hometeam_id = t.team_api_id
+WHERE 
+	-- Filter for 2014/2015 and Manchester United as the home team
+	m.season = '2014/2015'
+	AND t.team_long_name = 'Manchester United';
+    
+    
+/*
+Complete the CASE statement syntax.
+Fill out the logical operators identifying each match as a win, loss, or tie for Manchester United.
+Join the table on awayteam_id, and team_api_id.
+*/
+    
+SELECT 
+	m.id, 
+    t.team_long_name,
+    -- Identify matches as home/away wins or ties
+	CASE 
+		WHEN m.home_goal > m.away_goal THEN 'MU Loss'
+		WHEN m.home_goal < m.away_goal THEN 'MU Win'
+        ELSE 'Tie' 
+    END AS outcome
+-- Join team table to the match table
+FROM matches AS m
+LEFT JOIN team AS t 
+ON m.awayteam_id = t.team_api_id
+WHERE 
+	-- Filter for 2014/2015 and Manchester United as the away team
+	m.season = '2014/2015'
+	AND t.team_long_name = 'Manchester United';
+    
+    
+/*
+Declare the home and away CTEs before your main query.
+Join your CTEs to the match table using a LEFT JOIN.
+Select the relevant data from the CTEs into the main query.
+Select the date from match, team names from the CTEs, and home/ away goals from match in the main query.
+*/
+
+-- Set up the home team CTE
+WITH home AS (
+  SELECT m.id, t.team_long_name,
+	  CASE WHEN m.home_goal > m.away_goal THEN 'MU Win'
+		   WHEN m.home_goal < m.away_goal THEN 'MU Loss' 
+  		   ELSE 'Tie' END AS outcome
+  FROM matches AS m
+  LEFT JOIN team AS t ON m.hometeam_id = t.team_api_id),
+-- Set up the away team CTE
+away AS (
+  SELECT m.id, t.team_long_name,
+	  CASE WHEN m.home_goal > m.away_goal THEN 'MU Win'
+		   WHEN m.home_goal < m.away_goal THEN 'MU Loss' 
+  		   ELSE 'Tie' END AS outcome
+  FROM matches AS m
+  LEFT JOIN team AS t ON m.awayteam_id = t.team_api_id)
+-- Select team names, the date and goals
+SELECT DISTINCT
+    m.date,
+    home.team_long_name AS home_team,
+    away.team_long_name AS away_team,
+    m.home_goal,
+    m.away_goal
+-- Join the CTEs onto the match table
+FROM matches AS m
+LEFT JOIN home ON m.id = home.id
+LEFT JOIN away ON m.id = away.id
+WHERE m.season = '2014/2015'
+      AND (home.team_long_name = 'Manchester United' 
+           OR away.team_long_name = 'Manchester United');
+           
+           
+/*
+Set up the CTEs so that the home and away teams each have a name, ID, and score associated with them.
+Select the date, home team name, away team name, home goal, and away goals scored in the main query.
+Rank the matches and order by the difference in scores in descending order.
+*/
+
+-- Set up the home team CTE
+WITH home AS (
+  SELECT m.id, t.team_long_name AS home_team, m.home_goal AS home_goal,
+	  CASE WHEN m.home_goal > m.away_goal THEN 'MU Win'
+		   WHEN m.home_goal < m.away_goal THEN 'MU Loss' 
+  		   ELSE 'Tie' END AS outcome
+  FROM matches AS m
+  LEFT JOIN team AS t ON m.hometeam_id = t.team_api_id),
+-- Set up the away team CTE
+away AS (
+  SELECT m.id, t.team_long_name AS away_team, m.away_goal AS away_goal,
+	  CASE WHEN m.home_goal > m.away_goal THEN 'MU Loss'
+		   WHEN m.home_goal < m.away_goal THEN 'MU Win' 
+  		   ELSE 'Tie' END AS outcome
+  FROM matches AS m
+  LEFT JOIN team AS t ON m.awayteam_id = t.team_api_id)
+-- Select columns and and rank the matches by goal difference
+SELECT DISTINCT
+    m.date,
+    home.home_team,
+    away.away_team,
+    m.home_goal, 
+    m.away_goal,
+    RANK() OVER (ORDER BY ABS(home.home_goal - away.away_goal) DESC) as match_rank
+-- Join the CTEs onto the match table
+FROM matches AS m
+LEFT JOIN home ON m.id = home.id
+LEFT JOIN away ON m.id = away.id
+WHERE m.season = '2014/2015'
+      AND ((home.home_team = 'Manchester United' AND home.outcome = 'MU Loss')
+      OR (away.away_team = 'Manchester United' AND away.outcome = 'MU Loss'));
