@@ -1083,3 +1083,165 @@ LEFT JOIN away ON m.id = away.id
 WHERE m.season = '2014/2015'
       AND ((home.home_team = 'Manchester United' AND home.outcome = 'MU Loss')
       OR (away.away_team = 'Manchester United' AND away.outcome = 'MU Loss'));
+      
+      
+      
+      
+/*
+testing the newly added 'summer' table
+*/
+
+-- Q1
+
+SELECT * FROM summer
+WHERE Country  = 'IND'
+AND Year = 2012
+AND Medal = 'Bronze';
+
+
+-- Q2
+
+SELECT COUNT(Medal) AS Medal_Count,
+Year,
+Medal
+FROM summer
+WHERE Country = 'IND'
+AND Year >=1950
+GROUP BY Medal;
+
+
+/*
+Find out how many medals  in each type have india won from 1950 to 2012 in the olympics. 
+The output table should have the columns of year, country.. Gold Count, Silver count, bronze count
+*/
+
+SELECT
+year,
+country,
+SUM(CASE WHEN medal = 'Gold' THEN 1 ELSE 0 END) AS Gold_Count,
+SUM(CASE WHEN medal = 'Silver' THEN 1 ELSE 0 END) AS Silver_Count,
+SUM(CASE WHEN medal = 'Bronze' THEN 1 ELSE 0 END) AS Bronze_Count,
+COUNT(*) AS total_medals
+FROM summer
+WHERE
+Country = 'IND'
+AND year BETWEEN 1950 AND 2012
+GROUP BY
+year,
+Country;
+
+
+-- Number each row in the dataset.
+
+SELECT
+  *,
+  -- Assign numbers to each row
+  ROW_NUMBER() OVER () AS Row_N
+FROM summer
+ORDER BY Row_N ASC;
+
+
+-- Assign a number to each year in which Summer Olympic games were held.
+
+SELECT
+  Year,
+  -- Assign numbers to each year
+  ROW_NUMBER() OVER (ORDER BY Year ASC) AS Row_N
+FROM (
+  SELECT DISTINCT Year
+  FROM summer
+  ORDER BY Year ASC
+) AS Years
+ORDER BY Year ASC;
+
+
+/*
+Assign a number to each year in which Summer Olympic games were held 
+so that rows with the most recent years have lower row numbers.
+*/
+
+SELECT
+  Year,
+  -- Assign the lowest numbers to the most recent years
+  ROW_NUMBER() OVER (ORDER BY YEAR DESC) AS Row_N
+FROM (
+  SELECT DISTINCT Year
+  FROM summer
+) AS Years
+ORDER BY Year;
+
+
+/*
+For each athlete, count the number of medals he or she has earned.
+*/
+
+SELECT
+  -- Count the number of medals each athlete has earned
+  Athlete,
+  COUNT(*) AS Medals
+FROM summer
+GROUP BY Athlete
+ORDER BY Medals DESC;
+
+
+/*
+Having wrapped the previous query in the Athlete_Medals CTE,
+rank each athlete by the number of medals they've earned.
+*/
+
+WITH Athlete_Medals AS (
+  SELECT
+    -- Count the number of medals each athlete has earned
+    Athlete,
+    COUNT(*) AS Medals
+  FROM summer
+  GROUP BY Athlete)
+
+SELECT
+  -- Number each athlete by how many medals they've earned
+  Athlete,
+  ROW_NUMBER() OVER (ORDER BY Medals DESC) AS Row_N
+FROM Athlete_Medals
+ORDER BY Medals DESC;
+
+
+-- Return each year's gold medalists in the Men's 69KG weightlifting competition.
+
+SELECT
+  -- Return each year's champions' countries
+  Year,
+  country AS champion
+FROM summer
+WHERE
+  Discipline = 'Weightlifting' AND
+  Event = '69KG' AND
+  Gender = 'Men' AND
+  Medal = 'Gold';
+  
+  
+/*
+Having wrapped the previous query in the Weightlifting_Gold CTE, 
+get the previous year's champion for each year.
+*/
+
+WITH Weightlifting_Gold AS (
+  SELECT
+    -- Return each year's champions' countries
+    Year,
+    Country AS champion
+  FROM summer
+  WHERE
+    Discipline = 'Weightlifting' AND
+    Event = '69KG' AND
+    Gender = 'Men' AND
+    Medal = 'Gold')
+
+SELECT
+  Year, Champion,
+  -- Fetch the previous year's champion
+  LAG(Champion) OVER
+    (ORDER BY Year ASC) AS Last_Champion
+FROM Weightlifting_Gold
+ORDER BY Year ASC;
+
+
