@@ -65,3 +65,5 @@ To make your document look professionally produced, Word provides header, footer
 26-04-2024 23:18:34 datacamp SQL script updated
 
 27-04-2024 21:55:59 datacamp SQL script updated
+
+30-04-2024 23:34:06 datacamp SQL script updated

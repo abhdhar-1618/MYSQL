@@ -1291,6 +1291,107 @@ FROM Athletics_Gold
 ORDER BY Event ASC, Gender ASC, Year ASC;
 
 
+/*
+For each year, fetch the current gold medalist and the gold medalist 3 competitions ahead of the current row.
+*/
+
+WITH Discus_Medalists AS (
+  SELECT DISTINCT
+    Year,
+    Athlete
+  FROM summer
+  WHERE Medal = 'Gold'
+    AND Event = 'Discus Throw'
+    AND Gender = 'Women'
+    AND Year >= 2000)
+
+SELECT
+  -- For each year, fetch the current and future medalists
+  Year,
+  Athlete,
+  LEAD(Athlete, 3) OVER (ORDER BY Year ASC) AS Future_Champion
+FROM Discus_Medalists
+ORDER BY Year ASC;
+
+
+-- Return all athletes and the first athlete ordered by alphabetical order.
+
+WITH All_Male_Medalists AS (
+  SELECT DISTINCT
+    Athlete
+  FROM summer
+  WHERE Medal = 'Gold'
+    AND Gender = 'Men')
+
+SELECT
+  -- Fetch all athletes and the first athlete alphabetically
+  Athlete,
+  FIRST_VALUE(Athlete) OVER (
+    ORDER BY Athlete ASC
+  ) AS First_Athlete
+FROM All_Male_Medalists;
+
+
+
+/*
+Return the year and the city in which each Olympic games were held.
+Fetch the last city in which the Olympic games were held.
+*/
+
+WITH Hosts AS (
+  SELECT DISTINCT Year, City
+    FROM summer)
+
+SELECT
+  Year,
+  City,
+  -- Get the last city in which the Olympic games were held
+  LAST_VALUE(City) OVER (
+   ORDER BY Year ASC
+   RANGE BETWEEN
+     UNBOUNDED PRECEDING AND
+     UNBOUNDED FOLLOWING
+  ) AS Last_City
+FROM Hosts
+ORDER BY Year ASC;
+
+
+/*Rank each athlete by the number of medals they've earned 
+-- the higher the count, the higher the rank 
+-- with identical numbers in case of identical values.
+*/
+
+WITH Athlete_Medals AS (
+  SELECT
+    Athlete,
+    COUNT(*) AS Medals
+  FROM Summer_Medals
+  GROUP BY Athlete)
+
+SELECT
+  Athlete,
+  Medals,
+  -- Rank athletes by the medals they've won
+  RANK() OVER (ORDER BY Medals DESC) AS Rank_N
+FROM Athlete_Medals
+ORDER BY Medals DESC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
