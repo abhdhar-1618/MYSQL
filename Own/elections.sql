@@ -149,6 +149,35 @@ GROUP BY party;
 
 -- How many candidates from each party won the election?
 
+SELECT * FROM elections;
+
+WITH winners AS (
+    SELECT
+        parliamentary_constituency,
+        candidate,
+        party,
+        total_votes
+    FROM elections e1
+    WHERE total_votes = (
+        SELECT MAX(total_votes)
+        FROM elections e2
+        WHERE e1.parliamentary_constituency = e2.parliamentary_constituency
+    )
+)
+SELECT
+    party,
+    COUNT(*) AS winning_contestants
+FROM winners
+GROUP BY party;
+
+
+ 
+
+
+
+
+
+
 
 
 
