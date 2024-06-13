@@ -147,28 +147,68 @@ COUNT(*) AS contestants
 FROM elections
 GROUP BY party;
 
--- How many candidates from each party won the election?
+/*
+Find out the percentage differenece between winning candidate votes and runner up candidate votes
+*/
 
-SELECT * FROM elections;
-
-WITH winners AS (
-    SELECT
-        parliamentary_constituency,
-        candidate,
-        party,
-        total_votes
-    FROM elections e1
-    WHERE total_votes = (
-        SELECT MAX(total_votes)
-        FROM elections e2
-        WHERE e1.parliamentary_constituency = e2.parliamentary_constituency
-    )
+WITH ranked_candidates AS (
+    SELECT parliamentary_constituency, candidate, total_votes,
+           RANK() OVER (PARTITION BY parliamentary_constituency ORDER BY total_votes DESC) AS ranks
+    FROM elections
+),
+winners AS (
+    SELECT parliamentary_constituency, candidate AS winning_candidate, total_votes AS winning_votes
+    FROM ranked_candidates
+    WHERE ranks = 1
+),
+runners_up AS (
+    SELECT parliamentary_constituency, candidate AS runner_up_candidate, total_votes AS runner_up_votes
+    FROM ranked_candidates
+    WHERE ranks = 2
 )
-SELECT
-    party,
-    COUNT(*) AS winning_contestants
-FROM winners
-GROUP BY party;
+SELECT w.parliamentary_constituency, w.winning_candidate, r.runner_up_candidate,
+       ((w.winning_votes - r.runner_up_votes) * 100.0 / w.winning_votes) AS percentage_difference
+FROM winners w
+JOIN runners_up r ON w.parliamentary_constituency = r.parliamentary_constituency;
+
+
+-- How do you rank candidates within each constituency based on their total votes?
+
+SELECT parliamentary_constituency, candidate, total_votes,
+       RANK() OVER (PARTITION BY parliamentary_constituency ORDER BY total_votes DESC) AS ranked
+FROM elections;
+
+
+-- How do you select only the winning candidate from each constituency?
+
+WITH ranked_candidates AS (
+    SELECT parliamentary_constituency, candidate, total_votes,
+           RANK() OVER (PARTITION BY parliamentary_constituency ORDER BY total_votes DESC) AS rank_position
+    FROM elections
+)
+SELECT parliamentary_constituency, candidate AS winning_candidate, total_votes AS winning_votes
+FROM ranked_candidates
+WHERE rank_position = 1;
+
+-- Rank the candidates based on their total votes within each constituency, including ties.
+
+SELECT parliamentary_constituency, candidate, total_votes,
+RANK() OVER (PARTITION BY parliamentary_constituency ORDER BY total_votes DESC) AS rank_position
+FROM elections;
+
+-- table check table
+
+SELECT *
+FROM elections
+LIMIT 3;
+
+
+
+
+
+
+
+
 
 
  
